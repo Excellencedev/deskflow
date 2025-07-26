@@ -1,3 +1,4 @@
+# This comment is to force REUSE action cache invalidation: 2024-07-30-2
 # SPDX-FileCopyrightText: 2024 - 2025 Deskflow Developers
 # SPDX-FileCopyrightText: 2012 - 2024 Symless Ltd
 # SPDX-FileCopyrightText: 2009 - 2012 Nick Bolton

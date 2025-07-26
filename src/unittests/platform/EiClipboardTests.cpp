@@ -22,6 +22,8 @@ class EiClipboardTests : public QObject
   Q_OBJECT
 
 private Q_SLOTS:
+  void initTestCase();
+  void cleanupTestCase();
   void constructorInitializesCorrectly();
   void portalAvailabilityDetection();
   void openCloseBasicFunctionality();
@@ -54,6 +56,16 @@ private:
 };
 
 // ===== Basic tests =====
+
+void EiClipboardTests::initTestCase()
+{
+  m_mockScope = std::make_unique<deskflow::test::MockPortalScope>();
+}
+
+void EiClipboardTests::cleanupTestCase()
+{
+  m_mockScope.reset();
+}
 
 void EiClipboardTests::constructorInitializesCorrectly()
 {
@@ -227,18 +239,15 @@ void EiClipboardTests::timeHandling()
 
 void EiClipboardTests::mockPortalAvailability()
 {
-  m_mockScope = std::make_unique<deskflow::test::MockPortalScope>();
   if (deskflow::platform::kHasPortal && deskflow::platform::kHasPortalClipboard) {
     QVERIFY(m_mockScope->isAvailable());
   } else {
     QVERIFY(!m_mockScope->isAvailable());
   }
-  m_mockScope.reset();
 }
 
 void EiClipboardTests::clipboardMonitoring()
 {
-  m_mockScope = std::make_unique<deskflow::test::MockPortalScope>();
   if (!m_mockScope->isAvailable()) {
     QSKIP("Mock portal not available");
   }
@@ -250,12 +259,10 @@ void EiClipboardTests::clipboardMonitoring()
     m_clipboard->stopMonitoring();
     QVERIFY(!m_clipboard->isMonitoring());
   }
-  m_mockScope.reset();
 }
 
 void EiClipboardTests::mockClipboardData()
 {
-  m_mockScope = std::make_unique<deskflow::test::MockPortalScope>();
   if (!m_mockScope->isAvailable()) {
     QSKIP("Mock portal not available");
   }
@@ -268,12 +275,10 @@ void EiClipboardTests::mockClipboardData()
   QCOMPARE(mimeTypes.size(), std::size_t(2));
   QVERIFY(std::find(mimeTypes.begin(), mimeTypes.end(), "text/plain") != mimeTypes.end());
   QVERIFY(std::find(mimeTypes.begin(), mimeTypes.end(), "text/html") != mimeTypes.end());
-  m_mockScope.reset();
 }
 
 void EiClipboardTests::clipboardChangeSimulation()
 {
-  m_mockScope = std::make_unique<deskflow::test::MockPortalScope>();
   if (!m_mockScope->isAvailable()) {
     QSKIP("Mock portal not available");
   }
@@ -290,7 +295,6 @@ void EiClipboardTests::clipboardChangeSimulation()
   QCOMPARE(lastChangedTypes.size(), std::size_t(2));
   QCOMPARE(mockPortal.getClipboardData("text/plain"), std::string("new test data"));
   QCOMPARE(mockPortal.getClipboardData("image/png"), std::string("binary image data"));
-  m_mockScope.reset();
 }
 
 QTEST_MAIN(EiClipboardTests)

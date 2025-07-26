@@ -11,6 +11,11 @@
 #include "platform/EiClipboardSync.h"
 #include "platform/PortalClipboard.h"
 
+#ifdef DESKFLOW_UNIT_TESTING
+#undef HAVE_LIBPORTAL_CLIPBOARD
+#define HAVE_LIBPORTAL_CLIPBOARD 0
+#endif
+
 #ifdef HAVE_LIBPORTAL_CLIPBOARD
 #include <gio/gio.h>
 #include <glib.h>
@@ -53,8 +58,7 @@ namespace deskflow {
 
 EiClipboard::EiClipboard()
 #ifndef __APPLE__
-    : m_portal(nullptr),
-      m_operationComplete(false),
+    : m_operationComplete(false),
       m_operationSuccess(false),
       m_open(false),
       m_time(0),
@@ -81,56 +85,48 @@ EiClipboard::EiClipboard()
   }
 
 #ifndef __APPLE__
-  // Build without libportal: provide stub implementation
-#ifdef HAVE_LIBPORTAL_CLIPBOARD
-  try {
-    m_portal = xdp_portal_new();
-    if (m_portal) {
-      // Check if portal service is running
-      if (checkPortalService()) {
-        // Check if clipboard interface will be available
-        if (checkClipboardInterface()) {
-          m_portalAvailable = true;
-          LOG_INFO("portal clipboard interface available and ready");
-
-          // TODO: Connect to clipboard change signals when API is available
-          // g_signal_connect(m_portal, "clipboard-changed",
-          //                  G_CALLBACK(onClipboardChanged), this);
-        } else {
-          m_portalAvailable = false;
-          LOG_INFO("portal service running but clipboard interface not available");
-        }
-      } else {
-        m_portalAvailable = false;
-        LOG_WARN("portal service not running or not accessible");
-      }
-    } else {
-      LOG_WARN("failed to create XDG portal");
-      m_portalAvailable = false;
+#ifdef DESKFLOW_UNIT_TESTING
+  // For unit testing, explicitly disable portal and initialize m_portalClipboard as a stub
+  m_portalAvailable = false;
+  m_portalClipboard = std::make_unique<PortalClipboard>(); // Initialize stub PortalClipboard
+  LOG_DEBUG("Portal initialization skipped for unit testing, stub PortalClipboard created.");
+#else
+  // Original logic for non-Apple, non-unit-testing builds
+  if (deskflow::platform::kHasPortalClipboard) {
+    if (!m_portalClipboard) {
+      initPortal();
     }
-  } catch (...) {
-    LOG_ERR("exception while initializing portal");
+  } else {
     m_portalAvailable = false;
+    LOG_DEBUG("libportal support disabled at compile time for non-Apple platform");
   }
+#endif // DESKFLOW_UNIT_TESTING
 #else
   m_portalAvailable = false;
-  LOG_DEBUG("libportal support disabled at compile time");
-#endif
-#else
-  LOG_DEBUG("compiled without libportal support, clipboard functionality disabled");
+  LOG_DEBUG("compiled without libportal support, clipboard functionality disabled on Apple platform");
 #endif
 
-  // Initialize negotiator and synchronization components
+  // Initialize negotiator, synchronization components, and monitor
   m_negotiator = std::make_shared<EiClipboardNegotiator>();
   m_sync = std::make_shared<EiClipboardSync>();
+#ifndef __APPLE__
+  // Initialize m_monitor only if a portal clipboard (stub or real) is available
+  // This ensures m_monitor is always initialized after m_portalClipboard.
+  if (m_portalClipboard) {
+      m_monitor = std::make_unique<EiClipboardMonitor>(m_portalClipboard.get());
+  } else {
+      m_monitor = nullptr; // Explicitly set to nullptr if no portal clipboard
+  }
+#endif
 }
 
 EiClipboard::~EiClipboard()
 {
 #ifndef __APPLE__
-  if (m_portal) {
-    g_object_unref(m_portal);
-    m_portal = nullptr;
+  if (m_portalClipboard) {
+    // Removed g_object_unref as PortalClipboard is a Qt object, not a GObject.
+    // Its destructor will handle cleanup.
+    m_portalClipboard = nullptr;
   }
 #endif
 }
@@ -324,38 +320,45 @@ std::string EiClipboard::get(EFormat format) const
 }
 
 #ifndef __APPLE__
+#ifndef DESKFLOW_UNIT_TESTING
 void EiClipboard::initPortal()
 {
+  m_portalClipboard = std::make_unique<PortalClipboard>();
+  if (!m_portalClipboard || !m_portalClipboard->initialize()) {
+    m_portalClipboard = nullptr;
+    return;
+  }
   try {
-    m_portal = xdp_portal_new();
-    if (m_portal) {
-      // Check if portal service is running
-      if (checkPortalService()) {
-        // Check if clipboard interface will be available
-        if (checkClipboardInterface()) {
-          m_portalAvailable = true;
-          LOG_INFO("portal clipboard interface available and ready");
+    // Check if portal service is running
+    if (checkPortalService()) {
+      // Check if clipboard interface will be available
+      if (checkClipboardInterface()) {
+        m_portalAvailable = true;
+        LOG_INFO("portal clipboard interface available and ready");
 
-          // TODO: Connect to clipboard change signals when API is available
-          // g_signal_connect(m_portal, "clipboard-changed",
-          //                  G_CALLBACK(onClipboardChanged), this);
-        } else {
-          m_portalAvailable = false;
-          LOG_INFO("portal service running but clipboard interface not available");
-        }
+        // TODO: Connect to clipboard change signals when API is available
+        // g_signal_connect(m_portal, "clipboard-changed",
+        //                  G_CALLBACK(onClipboardChanged), this);
       } else {
         m_portalAvailable = false;
-        LOG_WARN("portal service not running or not accessible");
+        LOG_INFO("portal service running but clipboard interface not available");
       }
     } else {
-      LOG_WARN("failed to create XDG portal");
       m_portalAvailable = false;
+      LOG_WARN("portal service not running or not accessible");
     }
   } catch (...) {
     LOG_ERR("exception while initializing portal");
     m_portalAvailable = false;
   }
 }
+#else  // DESKFLOW_UNIT_TESTING
+void EiClipboard::initPortal()
+{
+  m_portalAvailable = false;
+  LOG_DEBUG("initPortal skipped for unit testing environment.");
+}
+#endif // DESKFLOW_UNIT_TESTING
 
 std::string EiClipboard::formatToMimeType(EFormat format) const
 {
@@ -452,27 +455,6 @@ void EiClipboard::waitForOperation() const
   m_cv.wait(lock, [this] { return m_operationComplete; });
 }
 
-void EiClipboard::onClipboardReady(GObject *source, GAsyncResult *result, gpointer user_data)
-{
-  // TODO: Implement when portal clipboard API is available
-  auto *clipboard = static_cast<EiClipboard *>(user_data);
-  std::lock_guard<std::mutex> lock(clipboard->m_mutex);
-  clipboard->m_operationComplete = true;
-  clipboard->m_cv.notify_all();
-}
-
-void EiClipboard::onClipboardChanged(XdpPortal *portal, const char *const *mime_types, gpointer user_data)
-{
-  // TODO: Implement when portal clipboard API is available
-  auto *clipboard = static_cast<EiClipboard *>(user_data);
-  LOG_DEBUG("clipboard changed notification received");
-
-  // Invalidate all cached data
-  for (int i = 0; i < kNumFormats; ++i) {
-    clipboard->m_cacheValid[i] = false;
-  }
-}
-
 bool EiClipboard::checkPortalService() const
 {
   // Check if the portal D-Bus service is available
@@ -523,7 +505,6 @@ bool EiClipboard::checkClipboardInterface() const
   //     nullptr, nullptr);
   // return proxy != nullptr;
 #endif
-
   return false; // Interface not yet available
 }
 #endif
@@ -541,8 +522,11 @@ bool EiClipboard::startMonitoring()
 void EiClipboard::stopMonitoring()
 {
 #ifndef __APPLE__
-  if (m_monitor) {
+  if (deskflow::platform::kHasPortalClipboard && m_monitor && m_portalClipboard) {
     m_monitor->stopMonitoring();
+    // Removed g_object_unref as PortalClipboard is a Qt object, not a GObject.
+    // Its destructor will handle cleanup via std::unique_ptr.
+    m_portalClipboard = nullptr;
   }
 #endif
 }
@@ -699,7 +683,7 @@ std::string EiClipboard::sanitizeClipboardData(EFormat format, const std::string
     std::regex jsRegex(R"(javascript:[^"'>\s]*)", std::regex_constants::icase);
     sanitized = std::regex_replace(sanitized, jsRegex, "");
 
-    std::regex onEventRegex(R"(\son\w+\s*=\s*[^>\s]*)", std::regex_constants::icase);
+    std::regex onEventRegex(R"(\ son\w+\s*=\s*[^>\s]*)", std::regex_constants::icase);
     sanitized = std::regex_replace(sanitized, onEventRegex, "");
     break;
   }

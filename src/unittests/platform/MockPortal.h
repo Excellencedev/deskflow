@@ -84,15 +84,21 @@ private:
 class MockPortalScope
 {
 public:
+  MockPortalScope() : m_portal(std::make_unique<MockPortal>())
+  {
+  }
+
   MockPortal &portal()
   {
-    static MockPortal stub;
-    return stub;
+    return *m_portal;
   }
   bool isAvailable() const
   {
     return false;
   }
+
+private:
+  std::unique_ptr<MockPortal> m_portal;
 };
 
 } // namespace deskflow::test

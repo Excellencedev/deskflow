@@ -7,6 +7,8 @@
 #include "platform/EiClipboardMonitor.h"
 #include "base/Log.h"
 
+#ifndef DESKFLOW_UNIT_TESTING
+
 #include <chrono>
 #include <thread>
 
@@ -228,3 +230,5 @@ bool EiClipboardMonitor::checkClipboardState()
 #endif
 
 } // namespace deskflow
+
+#endif // DESKFLOW_UNIT_TESTING

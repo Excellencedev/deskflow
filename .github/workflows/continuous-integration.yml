@@ -112,7 +112,7 @@ jobs:
   analyse-sonarcloud:
     needs: pr-comment-flags
     if: ${{ needs.pr-comment-flags.outputs.no-sonar != 'true' }}
-    uses: ./.github/workflows/sonarcloud-analysis.yml
+    uses: Excellencedev/deskflow/.github/workflows/sonarcloud-analysis.yml@master
     secrets:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
@@ -273,6 +273,7 @@ jobs:
           qt-version: ${{ matrix.target.qt-version }}
           vcpkg-triplet: ${{matrix.target.vcpkg-triplet}}
           like: ${{ matrix.target.like }}
+          cache-key: main-build-deps-4.0 # Increment this to force cache invalidation
 
       - name: Get version
         uses: ./.github/actions/get-version
@@ -385,7 +386,7 @@ jobs:
         with:
           bundle: deskflow-${{env.DESKFLOW_PACKAGE_VERSION}}-linux-${{matrix.flatpak.arch}}.flatpak
           manifest-path: deploy/linux/flatpak/org.deskflow.deskflow.yml
-          cache-key: flatpak-builder-${{matrix.flatpak.arch}}-2.0
+          cache-key: flatpak-builder-${{matrix.flatpak.arch}}-3.0
           arch: ${{matrix.flatpak.arch}}
           upload-artifact: false
 

@@ -6,6 +6,11 @@
 
 #pragma once
 
+#ifdef DESKFLOW_UNIT_TESTING
+#undef WINAPI_LIBPORTAL
+#define WINAPI_LIBPORTAL 0
+#endif
+
 #include "platform/Wayland.h"
 #include <atomic>
 #include <functional>
@@ -24,6 +29,7 @@ namespace deskflow {
 
 class EiClipboard;
 
+#ifndef DESKFLOW_UNIT_TESTING
 //! Clipboard change monitoring for Wayland
 /*!
 This class monitors clipboard changes on Wayland using the XDG Desktop Portal
@@ -102,5 +108,46 @@ private:
   ChangeCallback m_changeCallback;
 #endif
 };
+
+#else // DESKFLOW_UNIT_TESTING
+
+// Minimal stub for unit testing
+class EiClipboardMonitor
+{
+public:
+  using ChangeCallback = std::function<void(const std::vector<std::string> &mimeTypes)>;
+
+  EiClipboardMonitor() = default;
+  ~EiClipboardMonitor() = default;
+
+  bool startMonitoring()
+  {
+    return false;
+  }
+  void stopMonitoring()
+  {
+  }
+  bool isMonitoring() const
+  {
+    return false;
+  }
+  void setChangeCallback(ChangeCallback)
+  {
+  }
+  std::vector<std::string> getAvailableMimeTypes() const
+  {
+    return {};
+  }
+  bool isPortalMonitoringAvailable() const
+  {
+    return false;
+  }
+
+private:
+  std::atomic<bool> m_monitoring;
+  ChangeCallback m_changeCallback;
+};
+
+#endif // DESKFLOW_UNIT_TESTING
 
 } // namespace deskflow

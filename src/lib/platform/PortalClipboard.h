@@ -17,6 +17,132 @@
 #include <vector>
 
 #ifndef __APPLE__
+
+#ifdef DESKFLOW_UNIT_TESTING
+// Stub implementation for unit testing
+// Removed #include <QObject> and #include <QVariant> as they are no longer strictly needed if not inheriting QObject or
+// using QVariant heavily Will keep QVariant for processDbusReply for now, in case it's used elsewhere for types
+// #include <QObject> // No longer needed for base class
+#include <QVariant> // Still needed for QVariant parameter
+
+namespace deskflow {
+
+class PortalClipboard // No longer inherits QObject or uses Q_OBJECT
+{
+  // Q_OBJECT removed here
+
+public:
+  struct ClipboardResult
+  {
+    bool success = true;
+    std::string error = "";
+    std::string data = "mocked data";
+    std::string mimeType = "text/plain";
+  };
+
+  using ChangeCallback = std::function<void(const std::vector<std::string> &)>;
+
+  PortalClipboard()
+  {
+  } // No longer calls QObject(nullptr)
+  ~PortalClipboard()
+  {
+  } // No longer override, as not inheriting QObject
+
+  bool initialize()
+  {
+    return true;
+  }
+  void cleanup()
+  {
+  }
+  bool isAvailable() const
+  {
+    return false; // Should be false for unit testing stub
+  }
+
+  std::future<ClipboardResult>
+  setClipboardAsync(const std::string &mimeType, const std::string &data, const std::string &parentWindow = "")
+  {
+    Q_UNUSED(parentWindow);
+    auto promise = std::make_shared<std::promise<ClipboardResult>>();
+    promise->set_value(ClipboardResult{true, "", data, mimeType});
+    return promise->get_future();
+  }
+
+  std::future<ClipboardResult> getClipboardAsync(const std::string &mimeType, const std::string &parentWindow = "")
+  {
+    Q_UNUSED(parentWindow);
+    auto promise = std::make_shared<std::promise<ClipboardResult>>();
+    promise->set_value(ClipboardResult{true, "", "mocked data", mimeType});
+    return promise->get_future();
+  }
+
+  ClipboardResult setClipboard(
+      const std::string &mimeType, const std::string &data, const std::string &parentWindow = "", int timeoutMs = 5000
+  )
+  {
+    Q_UNUSED(parentWindow);
+    Q_UNUSED(timeoutMs);
+    return ClipboardResult{true, "", data, mimeType};
+  }
+
+  ClipboardResult getClipboard(const std::string &mimeType, const std::string &parentWindow = "", int timeoutMs = 5000)
+  {
+    Q_UNUSED(parentWindow);
+    Q_UNUSED(timeoutMs);
+    return ClipboardResult{true, "", "mocked data", mimeType};
+  }
+
+  std::vector<std::string> getAvailableMimeTypes() const
+  {
+    return {"text/plain", "text/html"};
+  }
+  bool clearClipboard(const std::string &parentWindow = "")
+  {
+    Q_UNUSED(parentWindow);
+    return true;
+  }
+  void setChangeCallback(ChangeCallback)
+  {
+  }
+  bool startMonitoring()
+  {
+    return true;
+  }
+  void stopMonitoring()
+  {
+  }
+
+private:
+  // Removed private Q_SLOTS: and onDbusCallFinished()
+  // Private methods remain as regular methods, if needed by the stub (e.g., processDbusReply)
+  bool checkPortalService()
+  {
+    return true;
+  }
+  std::string createParentWindow(const std::string &parentWindow) const
+  {
+    return parentWindow;
+  }
+  ClipboardResult processDbusReply(const QVariant &reply, const std::string &operation)
+  {
+    Q_UNUSED(reply);
+    Q_UNUSED(operation);
+    return ClipboardResult{};
+  }
+  void handleClipboardChange(const std::vector<std::string> &mimeTypes)
+  {
+    Q_UNUSED(mimeTypes);
+  }
+};
+
+} // namespace deskflow
+
+#else // !DESKFLOW_UNIT_TESTING
+
+// Original implementation for normal builds
+#ifndef __APPLE__
 #include <QDBusConnection>
 #include <QDBusInterface>
 #include <QDBusPendingReply>
@@ -25,7 +151,6 @@
 
 namespace deskflow {
 
-#ifndef __APPLE__
 //! XDG Desktop Portal clipboard interface wrapper using QDbus
 /*!
 This class provides a high-level interface to the XDG Desktop Portal
@@ -99,35 +224,33 @@ private:
   //! Check if portal service is available
   bool checkPortalService();
 
-  //! Handle clipboard change notification
-  void handleClipboardChange(const std::vector<std::string> &mimeTypes);
-
-  //! Create parent window identifier for portal calls
-  std::string createParentWindow(const std::string &parentWindow) const;
-
-  //! Wait for async operation to complete
-  ClipboardResult waitForOperation(std::shared_ptr<std::promise<ClipboardResult>> promise, int timeoutMs);
-
-  //! Convert QVariant to clipboard result
-  ClipboardResult processDbusReply(const QDBusPendingReply<QVariant> &reply, const std::string &operation);
-
   // D-Bus connection and interface
   QDBusConnection m_dbusConnection;
   std::unique_ptr<QDBusInterface> m_portalInterface;
+  std::map<void *, std::shared_ptr<std::promise<ClipboardResult>>> m_pendingOperations;
+  mutable std::mutex m_operationMutex;
+
+  // Portal state
   bool m_initialized;
   bool m_available;
 
-  // Callback management
+  // Callback for clipboard change notifications
   ChangeCallback m_changeCallback;
-  std::mutex m_callbackMutex;
+  mutable std::mutex m_callbackMutex;
 
-  // Operation tracking
-  std::mutex m_operationMutex;
-  std::map<void *, std::shared_ptr<std::promise<ClipboardResult>>> m_pendingOperations;
+  std::string createParentWindow(const std::string &parentWindow) const;
+  ClipboardResult processDbusReply(const QDBusPendingReply<QVariant> &reply, const std::string &operation);
+  void handleClipboardChange(const std::vector<std::string> &mimeTypes);
 };
 
+} // namespace deskflow
+
+#endif // !DESKFLOW_UNIT_TESTING
+
 #else
-// Stub implementation for non-Linux builds
+// Stub implementation for non-Linux builds (when __APPLE__ is defined)
+namespace deskflow {
+
 class PortalClipboard
 {
 public:
@@ -182,6 +305,6 @@ public:
   {
   }
 };
-#endif
 
 } // namespace deskflow
+#endif
