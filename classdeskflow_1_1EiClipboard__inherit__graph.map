@@ -1,0 +1,7 @@
+<map id="deskflow::EiClipboard" name="deskflow::EiClipboard">
+<area shape="rect" id="Node000001" title="Wayland clipboard implementation using XDG Desktop Portal." alt="" coords="5,151,153,175"/>
+<area shape="rect" id="Node000002" href="$classIClipboard.html" title="Clipboard interface." alt="" coords="39,78,119,103"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="82,118,82,150,76,150,76,118"/>
+<area shape="rect" id="Node000003" href="$classIInterface.html" title="Base class of interfaces." alt="" coords="40,5,118,30"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="82,46,82,78,76,78,76,46"/>
+</map>
