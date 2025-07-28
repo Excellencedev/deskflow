@@ -1,37 +1,5 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="Node000000" title=" " alt="" coords="5,413,75,438"/>
-<area shape="rect" id="Node000001" href="$classCommandProcess.html" title=" " alt="" coords="163,5,292,30"/>
-<area shape="poly" id="edge168_Node000000_Node000001" title=" " alt="" coords="41,398,49,316,64,210,88,108,103,69,121,41,140,27,161,19,163,24,142,32,125,45,108,71,93,110,70,211,54,317,46,398"/>
-<area shape="rect" id="Node000002" href="$classDaemonApp.html" title=" " alt="" coords="181,55,274,79"/>
-<area shape="poly" id="edge169_Node000000_Node000002" title=" " alt="" coords="42,398,51,326,68,234,91,147,105,114,121,90,149,73,180,65,181,70,151,78,125,94,110,116,96,149,73,235,57,326,47,398"/>
-<area shape="rect" id="Node000003" href="$classDataDownloader.html" title=" " alt="" coords="169,104,286,129"/>
-<area shape="poly" id="edge170_Node000000_Node000003" title=" " alt="" coords="38,398,41,344,52,274,62,238,77,202,96,169,121,140,143,125,167,117,169,122,145,130,124,144,100,172,82,204,67,240,57,276,46,344,43,398"/>
-<area shape="rect" id="Node000004" href="$classSettings.html" title=" " alt="" coords="193,153,262,178"/>
-<area shape="poly" id="edge171_Node000000_Node000004" title=" " alt="" coords="40,397,46,352,59,296,83,238,100,212,121,189,137,178,155,170,192,163,193,169,157,175,140,182,124,193,104,215,88,241,64,297,51,353,45,398"/>
-<area shape="rect" id="Node000005" href="$classTlsCertificate.html" title=" " alt="" coords="177,203,278,227"/>
-<area shape="poly" id="edge172_Node000000_Node000005" title=" " alt="" coords="43,398,51,362,66,318,89,275,121,238,147,223,176,215,177,220,149,228,124,242,93,278,71,321,57,363,48,399"/>
-<area shape="rect" id="Node000006" href="$classVersionChecker.html" title=" " alt="" coords="171,252,284,277"/>
-<area shape="poly" id="edge173_Node000000_Node000006" title=" " alt="" coords="48,397,75,341,95,312,121,288,145,275,170,267,171,272,147,280,124,292,99,316,79,344,53,400"/>
-<area shape="rect" id="Node000007" href="$classdeskflow_1_1PortalClipboard.html" title="XDG Desktop Portal clipboard interface wrapper using QDbus." alt="" coords="142,301,312,326"/>
-<area shape="poly" id="edge174_Node000000_Node000007" title=" " alt="" coords="56,399,84,366,121,335,146,324,148,329,124,340,88,369,60,402"/>
-<area shape="rect" id="Node000008" href="$classdeskflow_1_1core_1_1ipc_1_1DaemonIpcServer.html" title=" " alt="" coords="161,350,294,389"/>
-<area shape="poly" id="edge175_Node000000_Node000008" title=" " alt="" coords="89,409,159,387,161,392,90,414"/>
-<area shape="rect" id="Node000009" href="$classdeskflow_1_1gui_1_1ClientConnection.html" title=" " alt="" coords="125,413,330,438"/>
-<area shape="poly" id="edge176_Node000000_Node000009" title=" " alt="" coords="90,423,124,423,124,428,90,428"/>
-<area shape="rect" id="Node000010" href="$classdeskflow_1_1gui_1_1CoreProcess.html" title=" " alt="" coords="137,463,318,487"/>
-<area shape="poly" id="edge177_Node000000_Node000010" title=" " alt="" coords="91,438,123,447,172,459,171,465,122,452,89,443"/>
-<area shape="rect" id="Node000011" href="$classdeskflow_1_1gui_1_1FileTail.html" title=" " alt="" coords="154,512,300,537"/>
-<area shape="poly" id="edge178_Node000000_Node000011" title=" " alt="" coords="64,448,91,474,124,497,155,509,153,514,121,501,88,478,60,452"/>
-<area shape="rect" id="Node000012" href="$classdeskflow_1_1gui_1_1Logger.html" title=" " alt="" coords="155,561,300,586"/>
-<area shape="poly" id="edge179_Node000000_Node000012" title=" " alt="" coords="54,451,81,500,101,525,124,546,156,561,153,566,121,551,97,529,77,503,50,453"/>
-<area shape="rect" id="Node000013" href="$classdeskflow_1_1gui_1_1ServerConnection.html" title=" " alt="" coords="123,611,332,635"/>
-<area shape="poly" id="edge180_Node000000_Node000013" title=" " alt="" coords="49,452,58,486,73,525,95,563,124,596,145,608,142,612,121,600,91,566,68,527,53,487,44,454"/>
-<area shape="rect" id="Node000014" href="$classdeskflow_1_1gui_1_1TlsUtility.html" title=" " alt="" coords="149,660,306,685"/>
-<area shape="poly" id="edge181_Node000000_Node000014" title=" " alt="" coords="46,453,52,496,66,548,89,600,105,624,124,645,150,660,147,665,121,649,101,628,84,603,61,549,47,497,41,454"/>
-<area shape="rect" id="Node000015" href="$classdeskflow_1_1gui_1_1ipc_1_1DaemonIpcClient.html" title=" " alt="" coords="163,709,292,748"/>
-<area shape="poly" id="edge182_Node000000_Node000015" title=" " alt="" coords="44,453,48,505,60,569,84,636,102,667,125,694,142,708,163,717,161,722,140,712,121,698,98,670,80,639,55,571,43,505,39,454"/>
-<area shape="rect" id="Node000016" href="$classdeskflow_1_1gui_1_1proxy_1_1QProcessProxy.html" title=" " alt="" coords="159,772,296,810"/>
-<area shape="poly" id="edge183_Node000000_Node000016" title=" " alt="" coords="47,453,57,525,74,616,96,702,110,735,125,757,140,770,159,778,157,783,138,774,121,761,105,737,91,703,69,617,52,525,42,454"/>
-<area shape="rect" id="Node000017" href="$classvalidators_1_1ValidationError.html" title=" " alt="" coords="143,835,312,859"/>
-<area shape="poly" id="edge184_Node000000_Node000017" title=" " alt="" coords="46,453,54,538,69,648,92,752,107,793,125,820,144,834,141,838,121,824,102,795,87,754,63,649,48,538,41,454"/>
+<area shape="rect" id="Node000000" title=" " alt="" coords="5,5,105,30"/>
+<area shape="rect" id="Node000001" href="$classKeySequenceWidget.html" title=" " alt="" coords="153,5,295,30"/>
+<area shape="poly" id="edge186_Node000000_Node000001" title=" " alt="" coords="120,15,152,15,152,20,120,20"/>
 </map>

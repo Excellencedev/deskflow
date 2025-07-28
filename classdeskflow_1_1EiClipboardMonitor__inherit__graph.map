@@ -1,0 +1,5 @@
+<map id="deskflow::EiClipboardMonitor" name="deskflow::EiClipboardMonitor">
+<area shape="rect" id="Node000001" title="Clipboard change monitoring for Wayland." alt="" coords="5,78,196,103"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="66,5,135,30"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="103,46,103,78,98,78,98,46"/>
+</map>
